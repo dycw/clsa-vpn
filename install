@@ -30,8 +30,7 @@ cd "$TMP_DIR" || exit
 cp "$PATH_REPO/$ANYCONNECT_TAR" .
 tar zxvf "$ANYCONNECT_TAR"
 cd "$ANYCONNECT_VER/vpn" || exit
-rm license.txt # as it prompts us
-sudo './vpn_install.sh'
+yes | sudo './vpn_install.sh'
 cd "$PATH_REPO" || exit
 rm -rf "$TMP_DIR"
 
