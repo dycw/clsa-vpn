@@ -3,11 +3,10 @@
 See also [`clsa-vpn-credentials`](https://github.com/dycw/clsa-vpn-credentials).
 
 ```bash
-if ! [ -x "$(command -v curl)" ]; then
+if [[ "$(uname -s)" =~ Linux* ]] && ! [ -x "$(command -v curl)" ]; then
   sudo apt -y install curl
 fi
-URL=https://raw.githubusercontent.com/dycw/connect-to-clsa-vpn/master/install
-curl "$URL" | bash
+curl https://raw.githubusercontent.com/dycw/connect-to-clsa-vpn/master/install | bash
 ```
 
 If necessary, download the VPN client from [here](http://clsavpn.clsa.com).
