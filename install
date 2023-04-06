@@ -29,7 +29,7 @@ TMP_DIR=$(mktemp -d -t clsa-vpn-"$(date +%Y%m%d%H%M%S)"-XXXXXXXXXX)
 cd "$TMP_DIR" || exit
 cp "$PATH_REPO/$ANYCONNECT_TAR" .
 tar zxvf "$ANYCONNECT_TAR"
-sudo "./$ANYCONNECT_VER/vpn/install.sh"
+sudo "./$ANYCONNECT_VER/vpn/vpn_install.sh"
 cd "$PATH_REPO" || exit
 rm -rf "$TMP_DIR"
 
