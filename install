@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+
+# connect to GitHub
+if ! [ -x "$(command -v curl)" ]; then
+	sudo apt -y install curl
+fi
+curl https://raw.githubusercontent.com/dycw/connect-to-github/master/install | bash
+
+# git
+if ! [ -x "$(command -v git)" ]; then
+	sudo apt -y install git
+fi
+
+# clone repo
+PATH_REPO="$HOME/work/clsa-vpn"
+if ! [ -d "$PATH_REPO" ]; then
+	mkdir -p "$(dirname "$PATH_REPO")"
+	cd "$(dirname "$PATH_REPO")" || exit
+	git clone git@github.com:dycw/clsa-vpn.git
+fi
+
+# anyconnect
+ANYCONNECT_VER=anyconnect-linux64-4.10.03104
+ANYCONNECT_TAR="$ANYCONNECT_VER-predeploy-k9.tar.gz"
+TMP_DIR=$(mktemp -d -t clsa-vpn-"$(date +%Y%m%d%H%M%S)"-XXXXXXXXXX)
+cd "$TMP_DIR" || exit
+cp "$PATH_REPO/$ANYCONNECT_TAR" .
+tar zxvf "$ANYCONNECT_TAR"
+sudo "./$ANYCONNECT_VER/vpn_install.sh"
+cd "$PATH_REPO" || exit
+rm -rf "$TMP_DIR"
+
+# vpnui
+sudo apt -y install libcanberra-gtk-module
+
+# remmina
+if ! [ -x "$(command -v remmina)" ]; then
+	sudo apt -y install remmina-plugin-rdp
+fi
