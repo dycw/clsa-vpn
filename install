@@ -17,6 +17,9 @@ if ! [ -d "$PATH_REPO" ]; then
 	mkdir -p "$(dirname "$PATH_REPO")"
 	cd "$(dirname "$PATH_REPO")" || exit
 	git clone git@github.com:dycw/clsa-vpn.git
+else
+	cd "$PATH_REPO" || exit
+	git pull
 fi
 
 # anyconnect
