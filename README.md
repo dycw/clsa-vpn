@@ -1,6 +1,6 @@
-# `connect-to-clsa-vpn`
+# `clsa-vpn`
 
-Connect a new machine to the CLSA VPN
+See also [`clsa-vpn-credentials`](https://github.com/dycw/clsa-vpn-credentials).
 
 ```bash
 if ! [ -x "$(command -v curl)" ]; then
