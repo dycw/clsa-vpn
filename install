@@ -1,43 +1,55 @@
 #!/usr/bin/env bash
 
-# connect to GitHub
-if ! [ -x "$(command -v curl)" ]; then
-	sudo apt -y install curl
-fi
-curl https://raw.githubusercontent.com/dycw/connect-to-github/master/install | bash
-
-# git
-if ! [ -x "$(command -v git)" ]; then
-	sudo apt -y install git
-fi
-
 # clone repo
-PATH_REPO="$HOME/work/clsa-vpn"
-if ! [ -d "$PATH_REPO" ]; then
-	mkdir -p "$(dirname "$PATH_REPO")"
-	cd "$(dirname "$PATH_REPO")" || exit
-	git clone git@github.com:dycw/clsa-vpn.git
+_path_repo="$HOME/work/clsa-vpn"
+if ! [ -d "$_path_repo" ]; then
+	mkdir -p "$(dirname "$_path_repo")"
+	cd "$(dirname "$_path_repo")" || exit
+	git clone https@github.com:dycw/clsa-vpn.git
 else
-	cd "$PATH_REPO" || exit
+	cd "$_path_repo" || exit
 	git pull
 fi
 
-# anyconnect
-ANYCONNECT_VER=anyconnect-linux64-4.10.03104
-ANYCONNECT_TAR="$ANYCONNECT_VER-predeploy-k9.tar.gz"
-TMP_DIR=$(mktemp -d -t clsa-vpn-"$(date +%Y%m%d%H%M%S)"-XXXXXXXXXX)
-cd "$TMP_DIR" || exit
-cp "$PATH_REPO/$ANYCONNECT_TAR" .
-tar zxvf "$ANYCONNECT_TAR"
-cd "$ANYCONNECT_VER/vpn" || exit
-yes | sudo './vpn_install.sh'
-cd "$PATH_REPO" || exit
-rm -rf "$TMP_DIR"
+# SSH key
+if [[ "$(uname -s)" =~ Linux* ]] && ! [ -f "$HOME/.ssh/id_rsa" ]; then
+	echo "$(date '+%Y-%m-%d %H:%M:%S'): Generating SSH key..."
+	echo 'Generating SSH key...'
+	ssh-keygen -q -t rsa -N '' <<<$'\ny' >/dev/null 2>&1
+	# https://stackoverflow.com/a/43235320
+	sudo apt install -y xclip
+	xclip -sel clipboard <"$HOME/.ssh/id_rsa.pub"
+	xdg-open https://github.com/settings/ssh/new
+	read -p "Press 'y' to continue... " -n 1 -r
+	echo
+	if ! [[ "$REPLY" =~ ^[Yy]$ ]]; then
+		echo "$(date '+%Y-%m-%d %H:%M:%S'): Exiting..."
+		exit 0
+	fi
+fi
 
-# vpnui
-sudo apt -y install libcanberra-gtk-module
+# client
+_version=4.10.03104
+if [[ "$(uname -s)" =~ Darwin* ]]; then
+	installer f"anyconnect-macos-${_version}-core-vpn-webdeploy-k9.pkg"
+elif [[ "$(uname -s)" =~ Linux* ]]; then
+	# anyconnect
+	_anyconnect_linux_ver="anyconnect-linux64-${_version}"
+	_anyconnect_tar="${_anyconnect_linux_ver}-predeploy-k9.tar.gz"
+	_tmp_dir=$(mktemp -d -t clsa-vpn-"$(date +%Y%m%d%H%M%S)"-XXXXXXXXXX)
+	cd "$_tmp_dir" || exit
+	cp "${_path_repo}/${_anyconnect_tar}" .
+	tar zxvf "$_anyconnect_tar"
+	cd "${_anyconnect_linux_ver}/vpn" || exit
+	yes | sudo './vpn_install.sh'
+	cd "$_path_repo" || exit
+	rm -rf "$_tmp_dir"
 
-# remmina
-if ! [ -x "$(command -v remmina)" ]; then
-	sudo apt -y install remmina-plugin-rdp
+	# vpnui
+	sudo apt -y install libcanberra-gtk-module
+
+	# remmina
+	if ! [ -x "$(command -v remmina)" ]; then
+		sudo apt -y install remmina-plugin-rdp
+	fi
 fi
